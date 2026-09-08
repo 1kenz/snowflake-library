@@ -10,6 +10,7 @@
     "setup": "npm install"
   },
   "workspaces": ["server", "client"],
+  "engines": { "node": ">=22.5" },
   "devDependencies": {
     "concurrently": "^9.1.2"
   }
