@@ -1,0 +1,16 @@
+{
+  "name": "snowflake-library",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aile için kişisel kütüphane uygulaması (web + PWA)",
+  "scripts": {
+    "dev": "concurrently -n server,client -c cyan,magenta \"npm run dev -w server\" \"npm run dev -w client\"",
+    "build": "npm run build -w client",
+    "start": "npm run start -w server",
+    "setup": "npm install"
+  },
+  "workspaces": ["server", "client"],
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

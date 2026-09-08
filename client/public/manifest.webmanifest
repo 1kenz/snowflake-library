@@ -1,0 +1,13 @@
+{
+  "name": "SnowFlakeShelf — Aile Kitaplığı",
+  "short_name": "SnowFlakeShelf",
+  "description": "Aile için kişisel kütüphane: kitaplar, notlar, özetler, barkod tarama",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0f1a",
+  "theme_color": "#0b0f1a",
+  "lang": "tr",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
