@@ -12,3 +12,4 @@ client/dist/
 
 # Vercel
 .vercel
+vite.config.*.timestamp-*.mjs
