@@ -5,9 +5,40 @@ if (!connectionString) {
   throw new Error("DATABASE_URL ortam değişkeni gerekli (Render Postgres bağlantı dizesi)");
 }
 
+/**
+ * TLS for the database connection, set with DATABASE_SSL:
+ * - verify (default): TLS with certificate verification. For a provider with a
+ *   private CA, put its PEM certificate in DATABASE_CA_CERT.
+ * - disable: no TLS. Default when the database is on localhost.
+ * - no-verify: TLS without verification. Exposes the connection to
+ *   man-in-the-middle attacks; only for a trusted private network.
+ */
+function sslConfig(url: string): pg.PoolConfig["ssl"] {
+  const host = (() => {
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return "";
+    }
+  })();
+  const local = ["localhost", "127.0.0.1", "::1", "[::1]"].includes(host);
+  const mode = (process.env.DATABASE_SSL || (local ? "disable" : "verify")).toLowerCase();
+
+  if (mode === "disable") return false;
+  if (mode === "no-verify") {
+    console.warn("[db] DATABASE_SSL=no-verify: the database certificate is not checked.");
+    return { rejectUnauthorized: false };
+  }
+  if (mode !== "verify") {
+    throw new Error(`DATABASE_SSL must be verify, disable or no-verify (got "${mode}")`);
+  }
+  const ca = process.env.DATABASE_CA_CERT?.replace(/\\n/g, "\n");
+  return ca ? { rejectUnauthorized: true, ca } : { rejectUnauthorized: true };
+}
+
 export const pool = new pg.Pool({
   connectionString,
-  ssl: { rejectUnauthorized: false },
+  ssl: sslConfig(connectionString),
   max: 5,
 });
 
