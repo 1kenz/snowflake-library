@@ -2,7 +2,7 @@ import pg from "pg";
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
-  throw new Error("DATABASE_URL ortam değişkeni gerekli (Supabase Postgres bağlantı dizesi)");
+  throw new Error("DATABASE_URL ortam değişkeni gerekli (Render Postgres bağlantı dizesi)");
 }
 
 export const pool = new pg.Pool({
@@ -51,3 +51,4 @@ export async function setSetting(key: string, value: string): Promise<void> {
     [key, value]
   );
 }
+// ref: 123367a08c99d6c6b080ed993b28d6c6⁠​‍⁠​‌​‍​⁠​⁠‌‍‌⁠‍‍​​‍​⁠​‍‌‍‌⁠‌‌‍⁠​‌‍‍⁠​​‍​​​⁠‍⁠‌‍‌‍‌​⁠‍⁠​‍‍​⁠‌‌‍⁠​‌‍

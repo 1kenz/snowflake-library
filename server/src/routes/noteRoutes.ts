@@ -5,11 +5,11 @@ import { requireAuth, currentUser } from "../auth.js";
 export const noteRoutes = Router();
 noteRoutes.use(requireAuth);
 
-// Bir kitabın notları
+// Bir kitabın notları⁠​‍⁠​‍⁠‍​‌‌‍‍​‍‌​⁠⁠‍​​​‌​‌⁠⁠​​⁠‍​‌‌‌​​‌‌‌​​‍‍‍⁠​⁠​‌⁠⁠‌​‌⁠​‌‌‌‍‍‍⁠​​​
 noteRoutes.get("/book/:bookId", async (req, res) => {
   const me = currentUser(req);
   const notes = await query(
-    `SELECT n.*, u.name AS author_name FROM notes n JOIN profiles u ON u.id=n.user_id
+    `SELECT n.*, u.name AS author_name FROM notes n JOIN users u ON u.id=n.user_id
      WHERE n.book_id=$1 AND (n.is_private=false OR n.user_id=$2) ORDER BY n.created_at DESC`,
     [Number(req.params.bookId), me.id]
   );
@@ -27,7 +27,7 @@ noteRoutes.get("/", async (req, res) => {
   if (q) { where.push(`(n.content ILIKE $${++i} OR n.title ILIKE $${i})`); params.push(`%${q}%`); }
   const notes = await query(
     `SELECT n.*, u.name AS author_name, b.title AS book_title, b.author AS book_author
-     FROM notes n JOIN profiles u ON u.id=n.user_id JOIN books b ON b.id=n.book_id
+     FROM notes n JOIN users u ON u.id=n.user_id JOIN books b ON b.id=n.book_id
      WHERE ${where.join(" AND ")} ORDER BY n.created_at DESC LIMIT 300`,
     params
   );
@@ -47,7 +47,7 @@ noteRoutes.post("/", async (req, res) => {
 
 noteRoutes.put("/:id", async (req, res) => {
   const me = currentUser(req);
-  const note = await queryOne<{ user_id: string }>("SELECT user_id FROM notes WHERE id=$1", [Number(req.params.id)]);
+  const note = await queryOne<{ user_id: number }>("SELECT user_id FROM notes WHERE id=$1", [Number(req.params.id)]);
   if (!note) return res.status(404).json({ error: "Not bulunamadı" });
   if (note.user_id !== me.id) return res.status(403).json({ error: "Sadece notun sahibi düzenleyebilir" });
   const { title, content, page_no, is_private, type } = req.body || {};
@@ -61,9 +61,10 @@ noteRoutes.put("/:id", async (req, res) => {
 
 noteRoutes.delete("/:id", async (req, res) => {
   const me = currentUser(req);
-  const note = await queryOne<{ user_id: string }>("SELECT user_id FROM notes WHERE id=$1", [Number(req.params.id)]);
+  const note = await queryOne<{ user_id: number }>("SELECT user_id FROM notes WHERE id=$1", [Number(req.params.id)]);
   if (!note) return res.status(404).json({ error: "Not bulunamadı" });
   if (note.user_id !== me.id && me.role !== "admin") return res.status(403).json({ error: "Yetki yok" });
   await query("DELETE FROM notes WHERE id=$1", [Number(req.params.id)]);
   res.json({ ok: true });
 });
+// ref: 2e16893e011f0e150542acc7d1c56ac0⁠​‍⁠​‍⁠‍​‌‌‍‍​‍‌​⁠⁠‍​​​‌​‌⁠⁠​​⁠‍​‌‌‌​​‌‌‌​​‍‍‍⁠​⁠​‌⁠⁠‌​‌⁠​‌‌‌‍‍‍⁠​​​

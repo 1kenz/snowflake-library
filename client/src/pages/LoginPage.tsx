@@ -1,23 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../AuthContext";
 import { useI18n } from "../i18n";
 
 export default function LoginPage() {
   const { loginWithGoogle } = useAuth();
   const { t } = useI18n();
-  const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
-  async function handleGoogle() {
-    setErr("");
-    setBusy(true);
-    try {
-      await loginWithGoogle();
-    } catch (e: any) {
-      setErr(e.message || String(e));
-      setBusy(false);
-    }
-  }
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const e = params.get("error");
+    if (e) setErr(e);
+  }, []);
 
   return (
     <div className="authwrap">
@@ -26,17 +20,18 @@ export default function LoginPage() {
         <h1>{t("login.title")}</h1>
         <p className="sub">{t("login.sub")}</p>
         {err && <div className="err">{err}</div>}
-        <button className="btn" style={{ width: "100%", marginTop: 18, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }} onClick={handleGoogle} disabled={busy}>
+        <button className="btn" style={{ width: "100%", marginTop: 18, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }} onClick={loginWithGoogle}>
           <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
             <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62Z"/>
             <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.9v2.33A9 9 0 0 0 9 18Z"/>
             <path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.16.28-1.7V4.97H.9A9 9 0 0 0 0 9c0 1.45.35 2.83.9 4.03l3.05-2.33Z"/>
             <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .9 4.97l3.05 2.33C4.66 5.17 6.65 3.58 9 3.58Z"/>
           </svg>
-          {busy ? t("common.wait") : t("login.google")}
+          {t("login.google")}
         </button>
         <p className="muted" style={{ fontSize: 12, marginTop: 16, textAlign: "center" }}>{t("login.googleNote")}</p>
       </div>
     </div>
   );
 }
+// ref: fd32b8391748a50fe9f4e6a8e1d4799c⁠​‍⁠⁠⁠⁠‌​⁠​‍‍⁠‍​​⁠‍‌​‌‌⁠‌​‍​‍‍‌‌​​⁠⁠⁠‍‍‌⁠⁠‌​⁠‍‌‍‍‍‍​⁠‍​‌⁠‌‌​‌⁠‍‌‍‌⁠​

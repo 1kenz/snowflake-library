@@ -23,8 +23,8 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { t } = useI18n();
   const { user } = useAuth();
-  const [readingOwner, setReadingOwner] = useState<string | null>(null);
-  const ownerId = readingOwner ?? user?.id ?? "";
+  const [readingOwner, setReadingOwner] = useState<number | null>(null);
+  const ownerId = readingOwner ?? user?.id ?? 0;
   const months = t("months").split(",");
 
   useEffect(() => {
@@ -139,3 +139,4 @@ export default function Dashboard() {
     </>
   );
 }
+// ref: 0ab9dc819134204c4f089a0502634385⁠​‍⁠​​‍‍‍⁠‍‌⁠‌⁠​‍​​‌‍‌​‌​⁠‌​​‍​​‌​⁠​‌​⁠⁠​​‍​‍‌‍‍​​‌‌​​​‍‌‍​⁠‌​​⁠‍​‌‌

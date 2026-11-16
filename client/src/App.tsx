@@ -36,7 +36,7 @@ export default function App() {
 
   if (!user) return <div className="spin" />;
 
-  if (user.approval_status !== "approved" || user.is_active === false || user.is_active === 0) {
+  if (user.approval_status !== "approved" || user.is_active === false) {
     return <PendingApproval user={user} />;
   }
 
@@ -81,3 +81,4 @@ export default function App() {
     </div>
   );
 }
+// ref: 378b02b81841bd3d0eacf6d40343682a⁠​‍⁠​⁠‌⁠‍​‍⁠​​​‍‍⁠‍​​‌‍​‌​​‌‍⁠⁠‌​⁠⁠‌​​⁠‍‍‍⁠​⁠⁠‌‍⁠‌‌​​​​⁠‌​​⁠‌‍‍​​‍‍‍

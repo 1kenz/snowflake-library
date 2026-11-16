@@ -1,11 +1,11 @@
-# ❄️ SnowFlakeShelf — Aile Kitaplığı
+# ❄️ SnowFlakeShelf — Aile Kitaplığı⁠​‍⁠​‍‌⁠‌‌⁠‍‍​‌⁠⁠‌‍​‌⁠​‌​‌​⁠‍‍​‍‌⁠‌⁠‍​​‍⁠⁠⁠⁠⁠‍‍​‌⁠‍⁠⁠​‍‍‍​‌⁠⁠​‌‌‍⁠‍​
 
 Aile için çok kullanıcılı kişisel kütüphane uygulaması. Web + PWA (telefona kurulabilir).
-Canlı ortam: **Vercel** (barındırma) + **Supabase** (veritabanı, kimlik doğrulama, dosya depolama).
+Canlı ortam: **Vercel** (barındırma) + **Render Postgres** (veritabanı) + kendi Google OAuth akışımız (kimlik doğrulama).
 
 ## Özellikler
 
-- 🔐 **Google ile giriş** — Supabase Auth üzerinden; şifre yönetimi yok
+- 🔐 **Google ile giriş** — kendi OAuth akışımız üzerinden; şifre yönetimi yok
 - 🛡️ **Yönetici onay akışı** — Admin panelinden açılan bir anahtarla, yeni kayıt olan kullanıcılar bir yönetici onaylayana kadar kitaplığa giremez
 - 👨‍👩‍👧‍👦 **Aile üyeliği** — herkesin kendi hesabı ve kitaplığı; yönetici üye ekler/çıkarır/rol değiştirir; "sadece bana özel" kitap/not gizliliği
 - 📖 **Kitap yönetimi** — ekleme/düzenleme/silme, kapak resmi (yükleme veya internetten otomatik), etiketler, seri takibi
@@ -26,39 +26,40 @@ Canlı ortam: **Vercel** (barındırma) + **Supabase** (veritabanı, kimlik doğ
 |---|---|
 | Frontend | React 18 + Vite + TypeScript |
 | Backend | Express + TypeScript (Vercel Serverless Function olarak `api/index.ts` üzerinden çalışır) |
-| Veritabanı | Supabase Postgres |
-| Kimlik | Supabase Auth (Google OAuth) |
-| Dosya depolama | Supabase Storage (`covers` bucket — kitap kapakları) |
+| Veritabanı | Render Postgres |
+| Kimlik | Kendi Google OAuth akışımız + httpOnly çerezle oturum (JWT) |
+| Dosya depolama | Kitap kapakları veritabanında (`covers` tablosu, bytea) — ayrı bir depolama servisi yok |
 | Barkod | @zxing/browser |
 | OCR | Tesseract.js (tur+eng) |
 | AI | Claude / OpenAI / Gemini (yedekli; birincil seçilebilir; anahtarlar admin panelinden girilir) |
 | Kitap verisi | Google Books + Open Library |
 
-## Canlıya alma (Vercel + Supabase)
+## Canlıya alma (Vercel + Render Postgres)
 
-### 1) Supabase projesi
+### 1) Render Postgres
 
-1. [supabase.com](https://supabase.com) üzerinde yeni bir proje oluşturun.
-2. `supabase/migrations/0001_init.sql` dosyasındaki SQL'i **SQL Editor**'de çalıştırın (şema, tetikleyiciler, RLS, `covers` storage bucket'ı bunu oluşturur).
-3. **Project Settings → API** altından `Project URL`, `anon public` ve `service_role` anahtarlarını not edin.
-4. **Project Settings → Database → Connection string → Transaction pooler** altından bağlantı dizesini alın (Vercel serverless için bu havuzlu bağlantı önerilir).
+1. [render.com](https://render.com) üzerinde yeni bir Postgres veritabanı oluşturun (ücretsiz katman 30 gün sonra siliniyor — kalıcı kullanım için ücretli bir plana geçin).
+2. `db/schema.sql` dosyasındaki SQL'i veritabanına uygulayın (Render Dashboard'daki "Connect" → psql, veya herhangi bir Postgres istemcisiyle).
+3. Dashboard'daki **External Database URL**'i not edin — bu, `DATABASE_URL` olacak.
 
 ### 2) Google OAuth
 
 1. [Google Cloud Console](https://console.cloud.google.com/apis/credentials) → yeni proje (veya mevcut) → **OAuth consent screen**'i yapılandırın (External, gerekli alanlar).
 2. **Credentials → Create Credentials → OAuth client ID → Web application**.
-3. **Authorized redirect URIs** kısmına şunu ekleyin:
-   `https://<SUPABASE-PROJECT-REF>.supabase.co/auth/v1/callback`
-4. **Authorized JavaScript origins** kısmına canlı alan adınızı ekleyin (ör. `https://snowflake-library-dnz.vercel.app`) ve yerel geliştirme için `http://localhost:5173`.
-5. Oluşan **Client ID** ve **Client Secret**'i Supabase panelinde **Authentication → Sign In / Providers → Google**'a girip etkinleştirin.
+3. **Authorized redirect URIs** kısmına hem canlı hem yerel geliştirme adreslerini ekleyin:
+   - `https://snowflake-library-dnz.vercel.app/api/auth/google/callback`
+   - `http://localhost:5173/api/auth/google/callback` (yerel geliştirme için)
+4. **Authorized JavaScript origins** kısmına aynı iki alan adını (protokol + host, path olmadan) ekleyin.
+5. Oluşan **Client ID** ve **Client Secret**'i ortam değişkenlerine girin (aşağıya bakın).
 
 ### 3) Ortam değişkenleri
 
 `.env.example` dosyasını referans alın. Vercel projesinde **Settings → Environment Variables** altına şunları girin:
 
-- `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-- `DATABASE_URL` (Transaction pooler bağlantı dizesi)
-- `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+- `DATABASE_URL` (Render External Database URL)
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+- `ADMIN_EMAIL` (varsayılan `admin@example.com`)
+- (isteğe bağlı) `JWT_SECRET`, `PUBLIC_BASE_URL`
 
 ### 4) Vercel
 
@@ -66,7 +67,7 @@ Proje GitHub'a bağlanıp Vercel'e import edildiğinde `vercel.json` build/deplo
 
 ### 5) İlk yönetici
 
-`admin@example.com` adresiyle Google ile ilk giriş yapıldığında bu hesap otomatik olarak **yönetici** ve **onaylı** olur (bkz. `handle_new_user` tetikleyicisi). Diğer tüm hesaplar normal üye olarak başlar.
+`ADMIN_EMAIL` ile eşleşen adresle (varsayılan `admin@example.com`) Google ile ilk giriş yapıldığında bu hesap otomatik olarak **yönetici** ve **onaylı** olur. Diğer tüm hesaplar normal üye olarak başlar.
 
 ### 6) Yeni kayıtlarda onay zorunluluğu
 
@@ -74,7 +75,7 @@ Admin panelindeki **"Yeni Kayıtlarda Onay"** butonu açıldığında, Google il
 
 ## Yerel geliştirme
 
-Gereksinim: **Node.js 22.5+**, bir Supabase projesi (yukarıdaki adımlarla kurulmuş).
+Gereksinim: **Node.js 22.5+**, bir Render Postgres veritabanı (yukarıdaki adımlarla kurulmuş).
 
 ```bash
 cp .env.example .env   # değerleri doldurun
@@ -113,3 +114,4 @@ npm run build && npx cap sync
 ```
 
 Aile içi kullanım için PWA genellikle yeterlidir.
+<!-- ref: 275e87d87113a27782ffe87bca87c5b8⁠​‍⁠​‍‌⁠‌‌⁠‍‍​‌⁠⁠‌‍​‌⁠​‌​‌​⁠‍‍​‍‌⁠‌⁠‍​​‍⁠⁠⁠⁠⁠‍‍​‌⁠‍⁠⁠​‍‍‍​‌⁠⁠​‌‌‍⁠‍​ -->

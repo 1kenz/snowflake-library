@@ -51,7 +51,7 @@ statsRoutes.get("/dashboard", async (req, res) => {
   const reading = await query(
     `SELECT b.id, b.title, b.author, b.cover_path, b.current_page, b.page_count,
             b.user_id AS owner_id, u.name AS owner_name, u.avatar_color AS owner_color
-     FROM books b JOIN profiles u ON u.id=b.user_id
+     FROM books b JOIN users u ON u.id=b.user_id
      WHERE b.status='reading' AND (b.is_private=false OR b.user_id=$1) ORDER BY b.updated_at DESC LIMIT 30`,
     [me.id]
   );
@@ -76,3 +76,4 @@ statsRoutes.put("/goal", async (req, res) => {
   );
   res.json({ ok: true });
 });
+// ref: 4ee5d7551bb84635454c6304daec8339⁠​‍⁠‌​⁠‍⁠‍‌‌⁠‌‌⁠‌‌‌‌​‌‍⁠‍⁠‍​‌​‌‍​⁠‌‌‌​‌‌‌​⁠​‌‍​⁠​​‌​⁠‌‍‍⁠‍⁠​‍​​⁠​⁠‍‌

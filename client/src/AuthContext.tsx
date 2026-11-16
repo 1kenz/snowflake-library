@@ -1,13 +1,12 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { supabase } from "./supabaseClient";
-import { get, User } from "./api";
+import { get, post, User } from "./api";
 
 interface AuthState {
   user: User | null;
   loading: boolean;
   hasSession: boolean;
   refresh: () => Promise<void>;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: () => void;
   logout: () => Promise<void>;
 }
 
@@ -16,7 +15,7 @@ const Ctx = createContext<AuthState>({
   loading: true,
   hasSession: false,
   refresh: async () => {},
-  loginWithGoogle: async () => {},
+  loginWithGoogle: () => {},
   logout: async () => {},
 });
 
@@ -26,40 +25,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   async function refresh() {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) {
-      setHasSession(false);
-      setUser(null);
-      setLoading(false);
-      return;
-    }
-    setHasSession(true);
     try {
       setUser(await get<User>("/auth/me"));
+      setHasSession(true);
     } catch {
       setUser(null);
+      setHasSession(false);
     } finally {
       setLoading(false);
     }
   }
 
-  useEffect(() => {
-    refresh();
-    const { data: sub } = supabase.auth.onAuthStateChange(() => {
-      refresh();
-    });
-    return () => sub.subscription.unsubscribe();
-  }, []);
+  useEffect(() => { refresh(); }, []);
 
-  async function loginWithGoogle() {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: window.location.origin },
-    });
+  function loginWithGoogle() {
+    window.location.href = "/api/auth/google/start";
   }
 
   async function logout() {
-    await supabase.auth.signOut();
+    try { await post("/auth/logout"); } catch {}
     setUser(null);
     setHasSession(false);
     window.location.href = "/login";
@@ -73,3 +57,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 }
 
 export const useAuth = () => useContext(Ctx);
+// ref: f25ff3427509857bc4c90eb77cfc57ac⁠​‍⁠⁠⁠​‍‌‌⁠⁠⁠⁠​⁠‌​​‍‌⁠‌‌​​‍‌‍​‌‌‌⁠‍⁠⁠​‌​⁠​‍‌​​⁠‍‍⁠‌⁠‌⁠⁠​⁠⁠⁠​‌‌‌⁠‍‍⁠​

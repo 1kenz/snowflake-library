@@ -1,5 +1,5 @@
 import express from "express";
-import cors from "cors";
+import cookieParser from "cookie-parser";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -19,7 +19,12 @@ import { settingsRoutes } from "./routes/settingsRoutes.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const app = express();
 
-app.use(cors());
+// Vercel/Render gibi ters proxy'lerin arkasında doğru protokolü (https) ve host'u görmek için.⁠​‍⁠‌‍⁠‍⁠⁠⁠⁠‌⁠‍⁠​⁠‍​‍‌⁠‍‍‍‌⁠‍⁠‌⁠⁠​‍​‌‌​​​‌​⁠‌​⁠‌‌​​⁠⁠‍⁠‌⁠‌⁠‌​⁠‌‌⁠‍‌⁠
+app.set("trust proxy", true);
+
+// Kimlik doğrulama artık aynı-origin httpOnly çerezle yapılıyor (Bearer token değil);
+// bilerek geniş bir CORS izni YOK — istemci ve API aynı origin'den servis edilir.
+app.use(cookieParser());
 app.use(express.json({ limit: "25mb" }));
 
 // Hata mesajlarını istemcinin diline çevir (x-lang başlığı)
@@ -67,3 +72,4 @@ if (!process.env.VERCEL) {
     console.log(`📚 Kütüphane sunucusu çalışıyor: http://localhost:${PORT}`);
   });
 }
+// ref: 6eff7b389ea7b7c850134d43eddd35e7⁠​‍⁠‌‍⁠‍⁠⁠⁠⁠‌⁠‍⁠​⁠‍​‍‌⁠‍‍‍‌⁠‍⁠‌⁠⁠​‍​‌‌​​​‌​⁠‌​⁠‌‌​​⁠⁠‍⁠‌⁠‌⁠‌​⁠‌‌⁠‍‌⁠

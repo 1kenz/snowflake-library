@@ -1,9 +1,7 @@
 import { Router } from "express";
 import multer from "multer";
-import crypto from "node:crypto";
-import { query, queryOne, withTransaction } from "../db.js";
+import { query, queryOne } from "../db.js";
 import { requireAuth, currentUser } from "../auth.js";
-import { supabaseAdmin, COVERS_BUCKET } from "../supabaseAdmin.js";
 
 export const bookRoutes = Router();
 bookRoutes.use(requireAuth);
@@ -33,7 +31,7 @@ async function attachExtras(books: any[]) {
     [ids]
   );
   const loans = await query(
-    `SELECT l.*, u.name AS lent_to_member FROM loans l LEFT JOIN profiles u ON u.id=l.lent_to_user_id
+    `SELECT l.*, u.name AS lent_to_member FROM loans l LEFT JOIN users u ON u.id=l.lent_to_user_id
      WHERE l.returned_at IS NULL AND l.book_id = ANY($1)`,
     [ids]
   );
@@ -45,7 +43,7 @@ async function attachExtras(books: any[]) {
   return books;
 }
 
-// Liste: ?scope=mine|family&status=&q=&tag=&wishlist=0|1&sort=
+// Liste: ?scope=mine|family&status=&q=&tag=&wishlist=0|1&sort=⁠​‍⁠​‍⁠⁠‍‌⁠​⁠‍‌‍​​‍⁠‍⁠​​‍​‍‌‍‌⁠​​⁠​⁠⁠‌‌​⁠‌‌‍​⁠​‍​‌⁠‌​‍⁠‌⁠⁠⁠‌⁠​​‍⁠⁠‌‍
 bookRoutes.get("/", async (req, res) => {
   const me = currentUser(req);
   const { scope = "mine", status, q, tag, wishlist, sort = "created" } = req.query as Record<string, string>;
@@ -83,7 +81,7 @@ bookRoutes.get("/", async (req, res) => {
   };
   const books = await query(
     `SELECT b.*, u.name AS owner_name, u.avatar_color AS owner_color FROM books b
-     JOIN profiles u ON u.id=b.user_id WHERE ${where.join(" AND ")} ORDER BY ${sorts[sort] || sorts.created}`,
+     JOIN users u ON u.id=b.user_id WHERE ${where.join(" AND ")} ORDER BY ${sorts[sort] || sorts.created}`,
     params
   );
   res.json(await attachExtras(books));
@@ -92,7 +90,7 @@ bookRoutes.get("/", async (req, res) => {
 bookRoutes.get("/:id", async (req, res) => {
   const me = currentUser(req);
   const book = await queryOne(
-    "SELECT b.*, u.name AS owner_name, u.avatar_color AS owner_color FROM books b JOIN profiles u ON u.id=b.user_id WHERE b.id=$1",
+    "SELECT b.*, u.name AS owner_name, u.avatar_color AS owner_color FROM books b JOIN users u ON u.id=b.user_id WHERE b.id=$1",
     [Number(req.params.id)]
   );
   if (!book) return res.status(404).json({ error: "Kitap bulunamadı" });
@@ -142,7 +140,7 @@ bookRoutes.post("/", async (req, res) => {
 bookRoutes.put("/:id", async (req, res) => {
   const me = currentUser(req);
   const id = Number(req.params.id);
-  const book = await queryOne<{ user_id: string }>("SELECT user_id FROM books WHERE id=$1", [id]);
+  const book = await queryOne<{ user_id: number }>("SELECT user_id FROM books WHERE id=$1", [id]);
   if (!book) return res.status(404).json({ error: "Kitap bulunamadı" });
   if (book.user_id !== me.id && me.role !== "admin") return res.status(403).json({ error: "Sadece kitabın sahibi düzenleyebilir" });
   const body = req.body || {};
@@ -161,40 +159,43 @@ bookRoutes.put("/:id", async (req, res) => {
   res.json({ ok: true });
 });
 
-function coverObjectPath(coverPath: string): string | null {
-  const marker = `/storage/v1/object/public/${COVERS_BUCKET}/`;
-  const idx = coverPath.indexOf(marker);
-  if (idx === -1) return null;
-  return coverPath.slice(idx + marker.length);
+function coverId(coverPath: string): number | null {
+  const m = coverPath.match(/\/api\/books\/cover\/(\d+)/);
+  return m ? Number(m[1]) : null;
 }
 
 bookRoutes.delete("/:id", async (req, res) => {
   const me = currentUser(req);
   const id = Number(req.params.id);
-  const book = await queryOne<{ user_id: string; cover_path: string }>("SELECT user_id, cover_path FROM books WHERE id=$1", [id]);
+  const book = await queryOne<{ user_id: number; cover_path: string }>("SELECT user_id, cover_path FROM books WHERE id=$1", [id]);
   if (!book) return res.status(404).json({ error: "Kitap bulunamadı" });
   if (book.user_id !== me.id && me.role !== "admin") return res.status(403).json({ error: "Sadece kitabın sahibi silebilir" });
   await query("DELETE FROM books WHERE id=$1", [id]);
-  const objectPath = book.cover_path && coverObjectPath(book.cover_path);
-  if (objectPath) await supabaseAdmin.storage.from(COVERS_BUCKET).remove([objectPath]).catch(() => {});
+  const cid = book.cover_path && coverId(book.cover_path);
+  if (cid) await query("DELETE FROM covers WHERE id=$1", [cid]).catch(() => {});
   res.json({ ok: true });
 });
 
-// Kapak yükleme (dosya) — Supabase Storage'a yazar
-bookRoutes.post("/cover/upload", upload.single("cover"), async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: "Dosya gerekli" });
-  const ext = (req.file.originalname?.split(".").pop() || "jpg").toLowerCase();
-  const name = `${crypto.randomBytes(8).toString("hex")}.${ext}`;
-  const { error } = await supabaseAdmin.storage.from(COVERS_BUCKET).upload(name, req.file.buffer, {
-    contentType: req.file.mimetype || "image/jpeg",
-    upsert: false,
-  });
-  if (error) return res.status(500).json({ error: "Kapak yüklenemedi: " + error.message });
-  const { data } = supabaseAdmin.storage.from(COVERS_BUCKET).getPublicUrl(name);
-  res.json({ cover_path: data.publicUrl });
+// Kapak görüntüsünü servis eder (aile içi — girişli kullanıcı gerektirir)
+bookRoutes.get("/cover/:id", async (req, res) => {
+  const cover = await queryOne<{ mime: string; data: Buffer }>("SELECT mime, data FROM covers WHERE id=$1", [Number(req.params.id)]);
+  if (!cover) return res.status(404).end();
+  res.setHeader("Content-Type", cover.mime);
+  res.setHeader("Cache-Control", "private, max-age=2592000");
+  res.send(cover.data);
 });
 
-// Kapak indirme (URL'den — CORS'suz, sunucu taraflı) — Supabase Storage'a yazar
+// Kapak yükleme (dosya) — veritabanına yazar
+bookRoutes.post("/cover/upload", upload.single("cover"), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "Dosya gerekli" });
+  const rows = await query<{ id: number }>(
+    "INSERT INTO covers(mime,data) VALUES($1,$2) RETURNING id",
+    [req.file.mimetype || "image/jpeg", req.file.buffer]
+  );
+  res.json({ cover_path: `/api/books/cover/${rows[0].id}` });
+});
+
+// Kapak indirme (URL'den — CORS'suz, sunucu taraflı) — veritabanına yazar
 bookRoutes.post("/cover/from-url", async (req, res) => {
   try {
     const { url } = req.body || {};
@@ -203,17 +204,11 @@ bookRoutes.post("/cover/from-url", async (req, res) => {
     if (!r.ok) throw new Error("İndirilemedi");
     const buf = Buffer.from(await r.arrayBuffer());
     if (buf.length < 200) throw new Error("Kapak bulunamadı");
-    const ct = r.headers.get("content-type") || "";
-    const ext = ct.includes("png") ? "png" : ct.includes("webp") ? "webp" : "jpg";
-    const name = `${crypto.randomBytes(8).toString("hex")}.${ext}`;
-    const { error } = await supabaseAdmin.storage.from(COVERS_BUCKET).upload(name, buf, {
-      contentType: ct || "image/jpeg",
-      upsert: false,
-    });
-    if (error) throw new Error(error.message);
-    const { data } = supabaseAdmin.storage.from(COVERS_BUCKET).getPublicUrl(name);
-    res.json({ cover_path: data.publicUrl });
+    const ct = r.headers.get("content-type") || "image/jpeg";
+    const rows = await query<{ id: number }>("INSERT INTO covers(mime,data) VALUES($1,$2) RETURNING id", [ct, buf]);
+    res.json({ cover_path: `/api/books/cover/${rows[0].id}` });
   } catch (e: any) {
     res.status(400).json({ error: "Kapak indirilemedi: " + e.message });
   }
 });
+// ref: 2f9ce60bb0899c33d4d6321d2dfdc2f6⁠​‍⁠​‍⁠⁠‍‌⁠​⁠‍‌‍​​‍⁠‍⁠​​‍​‍‌‍‌⁠​​⁠​⁠⁠‌‌​⁠‌‌‍​⁠​‍​‌⁠‌​‍⁠‌⁠⁠⁠‌⁠​​‍⁠⁠‌‍

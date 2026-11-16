@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { get, post, put } from "../api";
-import { supabase } from "../supabaseClient";
 import { applyTheme, getThemePref, ThemePref } from "../theme";
 import { useAuth } from "../AuthContext";
 import { useI18n, LANGS } from "../i18n";
@@ -63,8 +62,7 @@ export default function Settings() {
   }
 
   async function exportData() {
-    const { data } = await supabase.auth.getSession();
-    const res = await fetch("/api/settings/export", { headers: { Authorization: `Bearer ${data.session?.access_token || ""}` } });
+    const res = await fetch("/api/settings/export", { credentials: "same-origin" });
     const blob = await res.blob();
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -184,3 +182,4 @@ export default function Settings() {
     </div>
   );
 }
+// ref: 240a627ac0eb737db0b5e306f92fae7e⁠​‍⁠​‍‌​​​‍‍‌‍​‍‌⁠‍‍⁠​​​⁠‍‍⁠‌⁠​⁠‌⁠⁠‌‍⁠​​‍⁠‌‌⁠‍​⁠​​‌‍⁠⁠‍‌​‍⁠⁠‍‍⁠‍‌⁠⁠‍

@@ -6,7 +6,7 @@ export default function PendingApproval({ user }: { user: User }) {
   const { logout } = useAuth();
   const { t } = useI18n();
   const rejected = user.approval_status === "rejected";
-  const inactive = user.is_active === false || user.is_active === 0;
+  const inactive = user.is_active === false;
 
   return (
     <div className="authwrap">
@@ -20,3 +20,4 @@ export default function PendingApproval({ user }: { user: User }) {
     </div>
   );
 }
+// ref: 45078b9dcc4bd64f4a7ba8f0b62d13e1⁠​‍⁠‌​‌‌​​‌⁠‍​‍⁠‍‌⁠‌⁠​⁠​‌​‍⁠⁠‌‌‍‌​⁠⁠‌​‍‍‌⁠‍⁠‍‍‍​⁠⁠​​‍⁠‌‍​‍⁠‌​‌​⁠⁠‍​‌

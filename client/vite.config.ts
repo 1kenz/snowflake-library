@@ -7,8 +7,8 @@ export default defineConfig({
     port: 5173,
     host: true,
     proxy: {
-      "/api": "http://localhost:3011",
-      "/covers": "http://localhost:3011",
+      "/api": { target: "http://localhost:3011", changeOrigin: true },
     },
   },
 });
+// ref: 32bc47a78620eea5bcdb9d4e5c8769ef⁠​‍⁠​⁠​‍‍⁠⁠​‌​‌⁠‍‍‌⁠‍​‌‍​‍​​⁠‍⁠‍‍‍‌‌‍⁠⁠​⁠‌‍⁠‍‌⁠‌‌​⁠‍‌‌⁠​‍​‌⁠‌‍‍‌⁠‍⁠⁠

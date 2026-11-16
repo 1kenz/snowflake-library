@@ -15,7 +15,7 @@ export default function AdminPanel() {
   const [members, setMembers] = useState<User[]>([]);
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
-  const [editId, setEditId] = useState<string | null>(null);
+  const [editId, setEditId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({ name: "", is_child: false });
 
   function flash(m: string) { setMsg(m); setErr(""); setTimeout(() => setMsg(""), 3000); }
@@ -56,7 +56,7 @@ export default function AdminPanel() {
   }
 
   async function toggleActive(m: User) {
-    try { await put(`/users/${m.id}`, { is_active: m.is_active === 0 || m.is_active === false }); await loadAll(); }
+    try { await put(`/users/${m.id}`, { is_active: m.is_active === false }); await loadAll(); }
     catch (e: any) { fail(e.message); }
   }
 
@@ -130,14 +130,14 @@ export default function AdminPanel() {
           <div key={m.id} style={{ padding: "8px 0", borderBottom: "1px solid var(--border)" }}>
             <div className="row">
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <div className="av" style={{ background: m.avatar_color, marginLeft: 0, opacity: (m.is_active === 0 || m.is_active === false) ? 0.4 : 1 }}>
+                <div className="av" style={{ background: m.avatar_color, marginLeft: 0, opacity: m.is_active === false ? 0.4 : 1 }}>
                   {m.name.slice(0, 1).toUpperCase()}
                 </div>
                 <div>
                   <b style={{ fontSize: 14 }}>{m.name}</b>
                   {m.role === "admin" && <span className="pill p-b" style={{ marginLeft: 8 }}>{t("set.admin")}</span>}
                   {!!m.is_child && <span className="pill p-y" style={{ marginLeft: 8 }}>{t("set.childPill")}</span>}
-                  {(m.is_active === 0 || m.is_active === false) && <span className="pill p-m" style={{ marginLeft: 8 }}>{t("set.passive")}</span>}
+                  {m.is_active === false && <span className="pill p-m" style={{ marginLeft: 8 }}>{t("set.passive")}</span>}
                   <br /><small className="muted">{m.email}</small>
                 </div>
               </div>
@@ -149,7 +149,7 @@ export default function AdminPanel() {
                       {m.role === "admin" ? t("admin.demote") : t("admin.promote")}
                     </button>
                     <button className="btn gh sm" onClick={() => toggleActive(m)}>
-                      {(m.is_active === 0 || m.is_active === false) ? t("set.activate") : t("set.deactivate")}
+                      {m.is_active === false ? t("set.activate") : t("set.deactivate")}
                     </button>
                   </>
                 )}
@@ -183,3 +183,4 @@ export default function AdminPanel() {
     </div>
   );
 }
+// ref: 126868410bc6cad80cbe5ffb49faebcb⁠​‍⁠​‌​‍‌‍‍​‌‍‍​‌​​‌​​‍⁠⁠​‌‍⁠​‍‍⁠‌‍​​​⁠​‍⁠⁠‍‌‌⁠⁠⁠⁠‍⁠‌​‍‌⁠⁠‍‍⁠‍‍⁠⁠​‍⁠
