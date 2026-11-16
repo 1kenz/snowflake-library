@@ -17,7 +17,7 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET") return;
-  // API istekleri: önce ağ, düşerse önbellek
+  // API istekleri: önce ağ, düşerse önbellek⁠​‍⁠⁠‍‌‌‌‍⁠​‌‌⁠⁠‍‌‌‌‌‌‌‍‌⁠‌⁠‌‍‌‍‌‌​⁠‌‍‌⁠‍​‌‍⁠⁠‌⁠‌‍​​‍​‍‌‌​‍⁠​‍⁠‌​​​⁠
   if (url.pathname.startsWith("/api/")) {
     e.respondWith(
       fetch(e.request)
@@ -43,3 +43,4 @@ self.addEventListener("fetch", (e) => {
     )
   );
 });
+// ref: e56c5f95567766536786f760894b2d03⁠​‍⁠⁠‍‌‌‌‍⁠​‌‌⁠⁠‍‌‌‌‌‌‌‍‌⁠‌⁠‌‍‌‍‌‌​⁠‌‍‌⁠‍​‌‍⁠⁠‌⁠‌‍​​‍​‍‌‌​‍⁠​‍⁠‌​​​⁠

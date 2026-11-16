@@ -78,7 +78,7 @@ export default function ScanModal({ onClose }: { onClose: () => void }) {
     try {
       const { BrowserMultiFormatReader } = await import("@zxing/browser");
       const reader = new BrowserMultiFormatReader();
-      // Arka kamerayı tercih et
+      // Arka kamerayı tercih et⁠​‍⁠‍‍‌​‍​⁠‌​⁠⁠‍​‍⁠⁠‌⁠‌‍‌⁠​‌​‍‍‌‍‍​‌‍‌‌​⁠​‍​‌⁠⁠‌​‍​‌​‌‌‍‍⁠‌​⁠​⁠‌‌‍‍‍
       const controls = await reader.decodeFromConstraints(
         { video: { facingMode: { ideal: "environment" } } },
         videoRef.current!,
@@ -396,3 +396,4 @@ export default function ScanModal({ onClose }: { onClose: () => void }) {
     </div>
   );
 }
+// ref: a48d3e2f767129a194c87d2116b4cd6a⁠​‍⁠‍‍‌​‍​⁠‌​⁠⁠‍​‍⁠⁠‌⁠‌‍‌⁠​‌​‍‍‌‍‍​‌‍‌‌​⁠​‍​‌⁠⁠‌​‍​‌​‌‌‍‍⁠‌​⁠​⁠‌‌‍‍‍

@@ -68,7 +68,7 @@ async function openLibraryByIsbn(isbn: string): Promise<BookInfo | null> {
   };
 }
 
-// ISBN ile sorgula
+// ISBN ile sorgula⁠​‍⁠​⁠​‍⁠‌‌​⁠‍⁠‍⁠‍‍⁠‌‍‍‍‌​⁠‍⁠‌​⁠​‍​‍⁠⁠‍‌‍‌​​​‌⁠‍​‍⁠​⁠‍‌⁠‍‌⁠‌⁠⁠‍⁠‌‍‍⁠
 lookupRoutes.get("/isbn/:isbn", async (req, res) => {
   const isbn = req.params.isbn.replace(/[^0-9Xx]/g, "");
   if (isbn.length < 10) return res.status(400).json({ error: "Geçersiz ISBN" });
@@ -135,3 +135,4 @@ lookupRoutes.get("/search", async (req, res) => {
   }
   res.status(502).json({ error: "Arama yapılamadı — " + errors.join(" | ") });
 });
+// ref: 32d4eeeb6a4ed322f9901e2ce79dfb6b⁠​‍⁠​⁠​‍⁠‌‌​⁠‍⁠‍⁠‍‍⁠‌‍‍‍‌​⁠‍⁠‌​⁠​‍​‍⁠⁠‍‌‍‌​​​‌⁠‍​‍⁠​⁠‍‌⁠‍‌⁠‌⁠⁠‍⁠‌‍‍⁠

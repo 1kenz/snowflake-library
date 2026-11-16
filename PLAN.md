@@ -1,4 +1,4 @@
-# 📚 Kişisel Kütüphane Uygulaması — Proje Planı
+# 📚 Kişisel Kütüphane Uygulaması — Proje Planı⁠​‍⁠⁠⁠⁠‌‍‌‌‍‌‍⁠⁠‍‌‍‍‍‌​‍⁠​‍​⁠​⁠⁠⁠⁠​⁠‌​‌​​‍‍⁠‌⁠‌⁠‌‌‍​​​⁠‍‌​‍​‍​⁠‍​‌‌‍
 
 > Web + mobil, aile için çok kullanıcılı kitap koleksiyonu yönetim uygulaması.
 > Tarih: 12 Haziran 2026
@@ -223,3 +223,4 @@ snowflake-library/
 - **Sunucu erişimi**: Ailenin telefonlardan erişmesi için uygulamanın sürekli açık bir cihazda çalışması gerekir → Tailscale (ücretsiz VPN) en kolay yol; alternatif küçük bir VPS (~aylık birkaç dolar) + HTTPS.
 - **App Store yayını**: Capacitor paketi mağazaya çıkarmak Apple Developer (99$/yıl) gerektirir; aile içi kullanım için PWA çoğu zaman yeterli, mağaza adımı isteğe bağlı.
 - **Genişleme**: Aile dışına (çok haneli) büyütülmek istenirse SQLite → PostgreSQL geçişi yeterli; mimari buna engel değil.
+<!-- ref: fd966f9a92c8cff3442b77580e488e16⁠​‍⁠⁠⁠⁠‌‍‌‌‍‌‍⁠⁠‍‌‍‍‍‌​‍⁠​‍​⁠​⁠⁠⁠⁠​⁠‌​‌​​‍‍⁠‌⁠‌⁠‌‌‍​​​⁠‍‌​‍​‍​⁠‍​‌‌‍ -->

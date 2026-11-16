@@ -284,3 +284,4 @@ If the author is not visible, leave the author field empty. If it's not a book c
   }
   res.status(502).json({ error: "Kapak tanınamadı — " + errors.join(" | "), code: "VISION_FAILED" });
 });
+// ref: 80d6bb571b96abd3e1b4a78300066400⁠​‍⁠‍​​​⁠‌‌‍‍⁠‍⁠‌‌‌⁠​‌‍⁠‍‌‌‍‍‍‍⁠⁠‌​⁠⁠‍​‌‍⁠‌​‍‍‌⁠‍​​⁠​​​​​​‌‍‌‍‌​​​​​

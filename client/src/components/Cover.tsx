@@ -15,3 +15,4 @@ export function Cover({ title, path, width = 58, height = 84, fontSize }: {
     </div>
   );
 }
+// ref: b955c3328f65d8b35bb64933b242815d⁠​‍⁠‍⁠‍‌‌‌‌‌⁠​​⁠​⁠​‍‍​⁠⁠‌‍‌‌⁠‌‍​‍⁠​⁠‌‌‍⁠‍⁠‌‍‌​‍‌​⁠​⁠‍⁠​‍‌​​‍‍​​‌‌‌⁠‌

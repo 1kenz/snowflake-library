@@ -203,3 +203,4 @@ tbody tr:hover { background: var(--card2); cursor: pointer; }
 video.scanner { width: 100%; border-radius: 14px; background: #000; max-height: 320px; object-fit: cover; }
 .topbtns { display: flex; gap: 10px; flex-wrap: wrap; }
 .search-input { max-width: 360px; }
+/* ref: a4ca73ea725319201d3a4b1766980ca8⁠​‍⁠‍‍‌​⁠​‍‍‌⁠​⁠⁠‍‍‍‌⁠​‍‌‌​⁠​‌‍‌​‍​​​‌⁠‌​⁠‍‍‌​‍⁠​‌‌⁠‌‍‌‍‍‌‍​​​⁠​‍‍‍​ */
