@@ -13,4 +13,7 @@ client/dist/
 # Vercel
 .vercel
 vite.config.*.timestamp-*.mjs
+
+# Yerel raporlar (repoya girmez)
+*.docx
 # ref: 4df5c7b4b6888973d574882ebfc03138⁠​‍⁠‌​⁠‌⁠⁠‌‌⁠​‌⁠‍⁠‌​‍⁠‌‍‍​‍​‍​‍‌‌⁠​⁠⁠‌‌‌‌⁠‌​‍​‍​​‍⁠‍‍⁠⁠⁠⁠​​​​⁠​‌​⁠‍​
