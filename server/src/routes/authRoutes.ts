@@ -8,7 +8,11 @@ export const authRoutes = Router();
 
 const STATE_COOKIE = "sfs_oauth_state";
 const AVATAR_COLORS = ["#0e7490", "#7c3aed", "#be185d", "#b45309", "#15803d", "#4338ca"];
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "admin@example.com").trim().toLowerCase();
+// Yönetici olacak Google hesabı. Varsayılan yok: ayarlanmazsa kimse otomatik yönetici olmaz.
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
+if (!ADMIN_EMAIL) {
+  console.warn("[auth] ADMIN_EMAIL ayarlı değil: hiçbir hesap otomatik olarak yönetici yapılmayacak.");
+}
 
 function redirectUri(req: any): string {
   const base = process.env.PUBLIC_BASE_URL || `${req.protocol}://${req.get("host")}`;
@@ -44,7 +48,7 @@ authRoutes.get("/google/callback", async (req, res) => {
       return res.redirect("/login?error=" + encodeURIComponent("Google e-postanız doğrulanmamış"));
     }
     const email = profile.email.trim().toLowerCase();
-    const isAdminEmail = email === ADMIN_EMAIL;
+    const isAdminEmail = ADMIN_EMAIL !== "" && email === ADMIN_EMAIL;
 
     let user = await queryOne<{ id: number }>("SELECT id FROM users WHERE email=$1", [email]);
 

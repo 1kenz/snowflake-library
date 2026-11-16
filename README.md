@@ -58,7 +58,7 @@ Canlı ortam: **Vercel** (barındırma) + **Render Postgres** (veritabanı) + ke
 
 - `DATABASE_URL` (Render External Database URL)
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
-- `ADMIN_EMAIL` (varsayılan `admin@example.com`)
+- `ADMIN_EMAIL` (zorunlu: yönetici olacak Google hesabının e-postası)
 - (isteğe bağlı) `JWT_SECRET`, `PUBLIC_BASE_URL`
 
 ### 4) Vercel
@@ -67,7 +67,7 @@ Proje GitHub'a bağlanıp Vercel'e import edildiğinde `vercel.json` build/deplo
 
 ### 5) İlk yönetici
 
-`ADMIN_EMAIL` ile eşleşen adresle (varsayılan `admin@example.com`) Google ile ilk giriş yapıldığında bu hesap otomatik olarak **yönetici** ve **onaylı** olur. Diğer tüm hesaplar normal üye olarak başlar.
+`ADMIN_EMAIL` ile eşleşen adresle Google ile ilk giriş yapıldığında bu hesap otomatik olarak **yönetici** ve **onaylı** olur. Diğer tüm hesaplar normal üye olarak başlar.
 
 ### 6) Yeni kayıtlarda onay zorunluluğu
 
